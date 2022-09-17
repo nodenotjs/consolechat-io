@@ -1,0 +1,6 @@
+{
+    "MIN_USERNAME_LEN" : 2,
+    "MAX_USERNAME_LEN" : 32,
+    "HANDSHAKE_TIMEOUT": 1000,
+    "ALLOW_DUPLICATED_NAMES": false
+}
