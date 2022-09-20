@@ -1,46 +1,39 @@
 import { Socket } from "socket.io";
 import { Packets, PKicked, PUpdateNickname } from "./packets";
 
-export class Client {
-    public nickname: String
+export class User {
+    public profile: UserProfile
+    private _userId: number
 
-    constructor(nickname: String) {
-        this.nickname = nickname;
+    constructor(userId: number, profile: UserProfile) {
+        this._userId = userId
+        this.profile = profile
+    }
+
+    get userId(): number {
+        return this._userId
     }
 }
 
-export class NetClient {
-    private _socket: Socket
-    private _client: Client
+export class UserProfile {
+    public nickname: String
+    private _associatedUserId: number
 
-    constructor(client: Client, socket: Socket) {
-        this._client = client;
-        this._socket = socket
+    constructor(associatedUserId: number, nickname: String) {
+        this._associatedUserId = associatedUserId
+        this.nickname = nickname
     }
 
-    get socket() { return this._socket }
-    get nickname() { return this._client.nickname }
-
-    disconnect(reason?: String) {
-        const packetData = new PKicked(reason || 'unknow')
-        this._socket.emit(Packets.KICK, packetData)
-        this._socket.disconnect()
-    }
-
-    updateNickname(newnick: String) {
-        this._client.nickname = newnick
-
-        const packetData = new PUpdateNickname(newnick)
-        this._socket.emit(Packets.UPDATE_NICK, packetData)
-
+    get userId(): number {
+        return this._associatedUserId
     }
 }
 
 export class Message {
     public content: String
-    public author: Client
+    public author: User
 
-    constructor(content: String, author: Client) {
+    constructor(content: String, author: User) {
         this.content = content
         this.author = author;
     }
@@ -48,20 +41,26 @@ export class Message {
 
 export class Channel {
     private _messages: Array<Message>
+    private _channelId: number
 
-    constructor() {
+    constructor(channelId: number) {
+        this._channelId = channelId
         this._messages = []
+    }
+
+    get channelId() {
+        return this._channelId
     }
 
     insertMessage(message: Message) {
         this._messages.push(message)
     }
 
-    getMessages(ammount?: number) {
+    getMessages(ammount?: number, startIndex?: number) {
         const endIndex = this._messages.length
         const readAmmount = ammount || endIndex
-        const startIndex = endIndex - readAmmount
+        const startFromIndex = startIndex || 0 + (endIndex - readAmmount)
 
-        return this._messages.slice(startIndex, endIndex)
+        return this._messages.slice(startFromIndex, endIndex)
     }
 }

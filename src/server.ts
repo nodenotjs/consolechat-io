@@ -26,5 +26,6 @@ io.on('connection', (client) => {
 
     client.on('disconnect', (reason: String) => {
         DEBUG && slog.debug(`Disconnection: ${client.id}! Reason: ${reason}`)
+        client.removeAllListeners()
     })
 })
