@@ -31,7 +31,7 @@ const sys = {
 DEBUG && sys.slog.debug("Loaded.");
 
 
-const serverAdress = "http://26.118.76.82:3000/"
+const serverAdress = "http://localhost:3000/"
 const socket = io(serverAdress);
 
 
