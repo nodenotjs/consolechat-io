@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { Packets, PKicked, PUpdateNickname } from "./packets";
+import { Packets, PMotd } from "./packets";
 
 export type ChannelIdentifier = number;
 export type MessageIdentifier = number;
@@ -47,6 +47,55 @@ export class UserProfile {
     get userId() { return this._associatedUserId }
 }
 
+export class UserManager {
+    private _idGenerator: UniquerId
+    private _users: Map<UserIdentifier, User>
+
+    constructor() {
+        this._idGenerator = new UniquerId();
+
+        this._users = new Map<UserIdentifier, User>
+    }
+
+    public createUser(nickname: String): User {
+        const id = this._idGenerator.getNext()
+        const profile = new UserProfile(id, nickname)
+        const user = new User(id, profile)
+        this._insertUser(user)
+        return user;
+    }
+
+    public removeUser(id: UserIdentifier): boolean {
+        return this._removeUser(id)
+    }
+
+    public getUserById(id: UserIdentifier): User | undefined {
+        return this._users.get(id)
+    }
+    
+    private _insertUser(user: User): Map<UserIdentifier, User> {
+        return this._users.set(user.id, user)
+    }
+
+    private _removeUser(id: UserIdentifier): boolean {
+        return this._users.delete(id)
+    }
+}
+
+export class NetUser {
+    public user: User
+    public socket: Socket
+    constructor(user: User, socket: Socket) {
+        this.user = user
+        this.socket = socket
+    }
+
+    public sendMotd(message: String, ...styles: Array<String>) {
+        const data = new PMotd(message, ...styles)
+        this.socket.emit(Packets.MOTD, data)
+    }
+}
+
 export class Message {
     public content: String
     public author: User
@@ -58,7 +107,7 @@ export class Message {
         this.author = author;
     }
 
-    get id() { return this._id }
+    public get id(): MessageIdentifier { return this._id }
 }
 
 export class Channel {
@@ -75,7 +124,7 @@ export class Channel {
         this._messages = []
     }
 
-    public get id() { return this._id }
+    public get id(): ChannelIdentifier { return this._id }
 }
 
 export class ChannelManager {
@@ -90,29 +139,28 @@ export class ChannelManager {
     public createChannel(channelType: ChannelType, creator: UserIdentifier): Channel {
         const channelId = this._idGenerator.getNext()
         const newChannel = new Channel(channelId, channelType, creator)
-
         this._insertChannel(newChannel);
         return newChannel;
     }
 
-    public deleteChannel(channelId: ChannelIdentifier) {
-        this._removeChannel(channelId);
+    public deleteChannel(channelId: ChannelIdentifier): boolean {
+        return this._removeChannel(channelId);
     }
 
-    public getChannelCount() {
+    public getChannelCount(): number {
         return this._channels.size;
-    } 
+    }
 
     public getChannelById(id: ChannelIdentifier): Channel | undefined {
         return this._channels.get(id);
     }
 
-    private _insertChannel(channel: Channel) {
-        this._channels.set(channel.id, channel);
+    private _insertChannel(channel: Channel): Map<ChannelIdentifier, Channel> {
+        return this._channels.set(channel.id, channel);
     }
 
-    private _removeChannel(channelId: ChannelIdentifier) {
-        this._channels.delete(channelId);
+    private _removeChannel(channelId: ChannelIdentifier): boolean {
+        return this._channels.delete(channelId);
     }
 
 }
