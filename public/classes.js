@@ -23,4 +23,8 @@ class ProfilesManager {
     getProfileById(id) {
         return this._profiles.get(id)
     }
+
+    getHasProfileById(id) {
+        return this._profiles.has(id)
+    }
 }

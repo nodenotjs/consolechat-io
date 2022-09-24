@@ -58,24 +58,27 @@ socket.on(sys.Packets.MOTD, (data) => {
 
 socket.on(sys.Packets.MESSAGE, (data) => {
     const message = data.message
-    var author = profilesManager.getProfileById(data.author)
-    if (author)
-    {
-        sys.util.displayMsg(message, author)
-    }
-    else
-    {
-        const sendData = {profileId: data.author}
-        socket.emit(sys.Packets.REQUEST_PROFILE, sendData, (data) => {
-            const profile = data.profile
-            profilesManager.addProfile(profile)
-            sys.util.displayMsg(message, profile)
-        })
-    }
+    const authorId = data.author
+
+    getUserProfile(authorId, (profile) => {
+        profilesManager.addProfile(profile)
+        sys.util.displayMsg(message, profile)
+    })
 })
 
 
-
+function getUserProfile(id, callback) {
+    if (profilesManager.getHasProfileById(id)) {
+        const profile = profilesManager.getProfileById(id)
+        callback(profile)
+    }
+    else {
+        const sendData = { profileId: id }
+        socket.emit(sys.Packets.REQUEST_PROFILE, sendData, (res) => {
+            callback(res.profile)
+        })
+    }
+}
 
 
 
