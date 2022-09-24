@@ -31,7 +31,7 @@ const sys = {
     displayMessage: (message, profile) => {
         console.log(
             `%c${profile.nickname}%c: %c${message}`,
-            'font-weight: bold", "color: gray', '')
+            'font-weight: bold', 'color: gray', '')
     },
 
     displayMotd: (content, ...styles) => {
