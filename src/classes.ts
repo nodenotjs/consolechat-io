@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { Packets, PMotd } from "./packets";
+import { Packets } from "./packets";
 
 export type ChannelIdentifier = number;
 export type MessageIdentifier = number;
@@ -72,7 +72,7 @@ export class UserManager {
     public getUserById(id: UserIdentifier): User | undefined {
         return this._users.get(id)
     }
-    
+
     private _insertUser(user: User): Map<UserIdentifier, User> {
         return this._users.set(user.id, user)
     }
@@ -91,8 +91,8 @@ export class NetUser {
     }
 
     public sendMotd(message: String, ...styles: Array<String>) {
-        const data = new PMotd(message, ...styles)
-        this.socket.emit(Packets.MOTD, data)
+        const sendData = { message: message, styles: [...styles] }
+        this.socket.emit(Packets.MOTD, sendData)
     }
 }
 

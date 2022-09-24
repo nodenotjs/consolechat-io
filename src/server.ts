@@ -3,7 +3,7 @@ import socketio from 'socket.io'
 import http from 'http'
 import { slog } from './utils'
 import settings from './server_config.json'
-import { IPReceivedMessage, IPRequestUserProfile, Packets, PMessage, PReceivedMessage, PUserProfile } from './packets'
+import { IPMessage, IPReceivedMessage, IPRequestUserProfile, IPUserProfile, Packets } from './packets'
 import { NetUser, User, UserManager } from './classes'
 import { isPromise } from 'util/types'
 
@@ -36,7 +36,7 @@ io.on(Packets.CONNECTION, (socket) => {
         const id = data.profileId
         const profile = userManager.getUserById(id)
         if (profile) {
-            const sendData = new PUserProfile(profile.profile)
+            const sendData: IPUserProfile = { profile: profile.profile }
             callback(sendData)
         }
         else {
@@ -45,10 +45,8 @@ io.on(Packets.CONNECTION, (socket) => {
     })
 
     socket.on(Packets.RECEIVED_MSG, (data: IPReceivedMessage) => {
-        const message = data.message
-        const author = user.id
-
-        const sendData = new PMessage(message, author)
+        
+        const sendData: IPMessage = { message: data.message, author: user.id }
         io.emit(Packets.MESSAGE, sendData)
     })
 
