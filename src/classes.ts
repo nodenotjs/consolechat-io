@@ -44,7 +44,11 @@ export class UserProfile {
         this.nickname = nickname
     }
 
-    get userId() { return this._associatedUserId }
+    get userid(): UserIdentifier { return this._associatedUserId }
+
+    toJSON() {
+        return { nickname: this.nickname, userid: this.userid }
+    }
 }
 
 export class UserManager {
@@ -73,6 +77,19 @@ export class UserManager {
         return this._users.get(id)
     }
 
+    public getAllUsers(): Array<User> {
+        return [...this._users.values()]
+    }
+
+    public getAllUserProfiles() : Array<UserProfile> {
+        const userProfiles: Array<UserProfile> = []
+        this.getAllUsers().forEach((u) => {
+            userProfiles.push(u.profile);
+        })
+
+        return userProfiles
+    }
+
     private _insertUser(user: User): Map<UserIdentifier, User> {
         return this._users.set(user.id, user)
     }
@@ -88,11 +105,6 @@ export class NetUser {
     constructor(user: User, socket: Socket) {
         this.user = user
         this.socket = socket
-    }
-
-    public sendMotd(message: String, ...styles: Array<String>) {
-        const sendData = { message: message, styles: [...styles] }
-        this.socket.emit(Packets.MOTD, sendData)
     }
 }
 

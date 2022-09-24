@@ -1,3 +1,16 @@
 {
-    
+    "MESSAGE_CHARACTER_FILTER": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],
+    "MESSAGE_MAX_LEN": 256,
+    "MOTD": {
+        "message": [
+            "%cWelcome to ConsoleChat.io!",
+            "%c\n Looks like you found where the site works ;)",
+            "%c\n\n If you need help, type %chelp%c for the command list"
+        ],
+        "styles": [
+            "font-weight: bold; color: gold; font-size: 24px",
+            "color: lime",
+            "", "color: aqua; text-decoration: underline", ""
+        ]
+    }
 }

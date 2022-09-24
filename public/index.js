@@ -1,3 +1,6 @@
+const serverAdress = "http://localhost:3000/"
+const socket = io(serverAdress);
+
 const __urlParms = new URLSearchParams(window.location.search)
 var DEBUG = __urlParms.get('debug')
 var NETDEBUG = __urlParms.get('netdebug')
@@ -10,29 +13,49 @@ const sys = {
         netdebug: (obj) => console.log(`%c[NETDEBUG] ${obj}`, "font-style: italic; color: gray;")
     },
 
-    util: {
-        displayMsg: (message, author) =>
-            console.log(`%c${author.nickname}%c: %c${message}`,
-                "font-weight: bold", "color: gray", "")
-    },
 
     Packets: {
         // Server
         MOTD: 'motd',
         MESSAGE: 'msg',
-        USER_PROFILE: 'userprofile',
+        USER_JOIN: 'userjoin',
+        USER_LEAVE: 'userleave',
+        UPDATE_PROFILE: 'updateprofile',
+        REMOVE_PROFILE: 'removeprofile',
+        YOUR_PROFILE: 'yourprofile',
 
         // Client
-        SENDMSG: 'sendmsg',
-        REQUEST_PROFILE: 'req-profile'
+        SEND_MSG: 'sendmsg',
+    },
+
+    displayMessage: (message, profile) => {
+        console.log(
+            `%c${profile.nickname}%c: %c${message}`,
+            'font-weight: bold", "color: gray', '')
+    },
+
+    displayMotd: (content, ...styles) => {
+        console.log(content, ...styles)
+    },
+
+    displayUserJoin: (profile) => {
+        console.log(
+            `%c🠊 %c${profile.nickname}%c joined the conversation!`,
+            'color: lime', 'font-weigth: bold', 'color: gray'
+        )
+    },
+
+    displayUserLeave: (profile) => {
+        console.log(
+            `%c🠈 %c${profile.nickname}%c left the conversation`,
+            'color: red', 'font-weigth: bold', 'color: gray'
+        )
     }
 }
 
 DEBUG && sys.slog.debug("Loaded.");
 
 
-const serverAdress = "http://localhost:3000/"
-const socket = io(serverAdress);
 
 
 socket.on('connect', () => {
@@ -49,40 +72,69 @@ socket.prependAny((event, ...args) => {
 })
 
 
+socket.on(sys.Packets.USER_JOIN, (data) => {
+    const userId = data.userid
+    const profile = profilesCache.getProfile(userId)
+    sys.displayUserJoin(profile)
+})
 
+socket.on(sys.Packets.USER_LEAVE, (data) => {
+    const userId = data.userid
+    const profile = profilesCache.getProfile(userId)
+    sys.displayUserLeave(profile)
+})
 
+socket.on(sys.Packets.UPDATE_PROFILE, (data) => {
+    data.profiles.forEach((p) => {
+        const newProfile = !profilesCache.getHasProfile(p.userid)
+        if (newProfile)
+            DEBUG && sys.slog.debug(`Added profile ${p.userid} to cache`)
+        else
+            DEBUG && sys.slog.debug(`Updated profile ${p.userid} in cache`)
+
+        profilesCache.setProfile(p)
+    })
+})
+
+socket.on(sys.Packets.REMOVE_PROFILE, (data) => {
+    data.userids.forEach((i) => {
+        DEBUG && sys.slog.debug(`Removed profile ${i} from cache`)
+        profilesCache.removeProfile(i)
+    })
+})
+
+socket.on(sys.Packets.YOUR_PROFILE, (data) => {
+    const id = data.userid
+    profilesCache.setMyProfileId(id)
+    DEBUG && sys.slog.debug(`Your profile id defined to ${id}`)
+})
 
 socket.on(sys.Packets.MOTD, (data) => {
-    console.log(data.message, ...data.styles)
+    const message = data.message.join('')
+    sys.displayMotd(message, ...data.styles)
 })
 
 socket.on(sys.Packets.MESSAGE, (data) => {
     const message = data.message
-    const authorId = data.author
-
-    getUserProfile(authorId, (profile) => {
-        profilesCache.addProfile(profile)
-        sys.util.displayMsg(message, profile)
-    })
+    const authorId = data.userid
+    const profile = profilesCache.getProfile(authorId)
+    sys.displayMessage(message, profile)
 })
 
 
-function getUserProfile(id, callback) {
-    if (profilesCache.getHasProfileById(id)) {
-        const profile = profilesCache.getProfileById(id)
-        callback(profile)
+// - USER COMMANDS
+Object.defineProperty(__proto__, "help", {
+    get: () => {
+        console.log(
+            "say(\"<message>\"): sends a message"
+        )
     }
-    else {
-        const sendData = { profileId: id }
-        socket.emit(sys.Packets.REQUEST_PROFILE, sendData, (res) => {
-            callback(res.profile)
-        })
-    }
-}
+});
 
+function say(message) {
+    let finalMessage = message
+    if (Array.isArray(finalMessage)) finalMessage = finalMessage.join('')
 
-
-function send(message) {
-    const data = { message: message }
-    socket.emit(sys.Packets.SENDMSG, data)
+    const data = { message: finalMessage }
+    socket.emit(sys.Packets.SEND_MSG, data)
 }

@@ -10,21 +10,30 @@ class UserProfile {
 class ProfilesCache {
     constructor() {
         this._profiles = new Map()
+        this._myprofileid = -1
     }
 
-    addProfile(profile) {
+    setProfile(profile) {
         this._profiles.set(profile.userid, profile)
     }
 
     removeProfile(id) {
-        this._profiles.remove(id)
+        this._profiles.delete(id)
     }
 
-    getProfileById(id) {
+    getProfile(id) {
         return this._profiles.get(id)
     }
 
-    getHasProfileById(id) {
+    getHasProfile(id) {
         return this._profiles.has(id)
+    }
+
+    setMyProfileId(id) {
+        this._myprofileid = id
+    }
+
+    getMyProfile() {
+        return this.getProfile(this.myprofile)
     }
 }

@@ -1,0 +1,1 @@
+Server sends all profiles when a user join
