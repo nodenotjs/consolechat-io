@@ -7,7 +7,7 @@ class UserProfile {
     get userId() { return this._associatedUserId }
 }
 
-class ProfilesManager {
+class ProfilesCache {
     constructor() {
         this._profiles = new Map()
     }

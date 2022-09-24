@@ -2,7 +2,7 @@ const __urlParms = new URLSearchParams(window.location.search)
 var DEBUG = __urlParms.get('debug')
 var NETDEBUG = __urlParms.get('netdebug')
 
-const profilesManager = new ProfilesManager()
+const profilesCache = new ProfilesCache()
 
 const sys = {
     slog: {
@@ -61,15 +61,15 @@ socket.on(sys.Packets.MESSAGE, (data) => {
     const authorId = data.author
 
     getUserProfile(authorId, (profile) => {
-        profilesManager.addProfile(profile)
+        profilesCache.addProfile(profile)
         sys.util.displayMsg(message, profile)
     })
 })
 
 
 function getUserProfile(id, callback) {
-    if (profilesManager.getHasProfileById(id)) {
-        const profile = profilesManager.getProfileById(id)
+    if (profilesCache.getHasProfileById(id)) {
+        const profile = profilesCache.getProfileById(id)
         callback(profile)
     }
     else {
