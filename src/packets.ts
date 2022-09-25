@@ -8,14 +8,18 @@ export enum Packets {
     // Server
     MOTD = 'motd',
     MESSAGE = 'msg',
-    USER_JOIN = 'userjoin',
-    USER_LEAVE = 'userleave',
     UPDATE_PROFILE = 'updateprofile',
     REMOVE_PROFILE = 'removeprofile',
     YOUR_PROFILE = 'yourprofile',
 
     // Client
     RECEIVED_MSG = 'sendmsg'
+}
+
+export enum MessageType {
+    NORMAL = 0,
+    USER_JOIN = 1,
+    USER_LEAVE = 2
 }
 
 export interface IPacket {/*foo*/ }
@@ -28,23 +32,14 @@ export interface IPMotd extends IPacket {
 
 export interface IPMessage extends IPacket
 {
-    message: String,
+    content?: String,
+    messagetype?: MessageType,
     userid: UserIdentifier
 }
 
 export interface IPUserProfile extends IPacket
 {
     profile: UserProfile
-}
-
-export interface IPUserJoin extends IPacket
-{
-    userid: UserIdentifier
-}
-
-export interface IPUserLeave extends IPacket
-{
-    userid: UserIdentifier
 }
 
 export interface IPUpdateProfile extends IPacket

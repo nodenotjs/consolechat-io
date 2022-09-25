@@ -2,7 +2,11 @@ import express from 'express'
 import socketio from 'socket.io'
 import http from 'http'
 import settings from './server_config.json'
-import { IPUpdateProfile, IPMessage, IPMotd, IPReceivedMessage, IPRemoveProfile, IPUserJoin, IPUserLeave, IPYourProfile, Packets } from './packets'
+import {
+IPUpdateProfile, IPMessage, IPMotd,
+IPReceivedMessage, IPRemoveProfile,
+IPYourProfile, Packets, MessageType
+} from './packets'
 import { NetUser, User, UserManager } from './classes'
 
 var DEBUG: boolean = true
@@ -34,25 +38,25 @@ io.on(Packets.CONNECTION, (socket) => {
     const sendAllProfiles: IPUpdateProfile = { profiles: userManager.getAllUserProfiles() }
     const sendNewProfile: IPUpdateProfile = { profiles: [user.profile] }
     const sendYourProfile: IPYourProfile = { userid: user.profile.userid }
-    const sendUserJoin: IPUserJoin = { userid: user.id }
+    const sendUserJoin: IPMessage = { messagetype: MessageType.USER_JOIN, userid: user.id }
     socket.emit(Packets.UPDATE_PROFILE, sendAllProfiles)
     socket.emit(Packets.YOUR_PROFILE, sendYourProfile)
     io.emit(Packets.UPDATE_PROFILE, sendNewProfile)
-    io.emit(Packets.USER_JOIN, sendUserJoin)
+    io.emit(Packets.MESSAGE, sendUserJoin)
 
 
     socket.on(Packets.DISCONNECT, (_: any) => {
         userManager.removeUser(user.id)
 
-        const sendUserLeave: IPUserLeave = { userid: user.id }
+        const sendUserLeave: IPMessage = { messagetype: MessageType.USER_LEAVE, userid: user.id }
         const sendRemoveProfile: IPRemoveProfile = { userids: [user.id] }
-        io.emit(Packets.USER_LEAVE, sendUserLeave)
+        io.emit(Packets.MESSAGE, sendUserLeave)
         io.emit(Packets.REMOVE_PROFILE, sendRemoveProfile)
     })
 
     socket.on(Packets.RECEIVED_MSG, (data: IPReceivedMessage) => {
         const message = messageFilter(data.message)
-        const sendData: IPMessage = { message: message, userid: user.id }
+        const sendData: IPMessage = { content: message, userid: user.id }
         io.emit(Packets.MESSAGE, sendData)
     })
 })

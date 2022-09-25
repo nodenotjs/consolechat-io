@@ -10,6 +10,7 @@ const profilesCache = new ProfilesCache()
 const sys = {
     slog: {
         debug: (obj) => console.log(`%c[DEBUG] ${obj}`, "font-style: italic; color: gray;"),
+        debugwarn: (obj) => console.log(`%c[DEBUG WARN] ${obj}`, "font-style: italic; color: yellow;"),
         netdebug: (obj) => console.log(`%c[NETDEBUG] ${obj}`, "font-style: italic; color: gray;")
     },
 
@@ -26,6 +27,12 @@ const sys = {
 
         // Client
         SEND_MSG: 'sendmsg',
+    },
+
+    MessageType: {
+        NORMAL: 0,
+        USER_JOIN: 1,
+        USER_LEAVE: 2
     },
 
     displayMessage: (message, profile) => {
@@ -72,17 +79,6 @@ socket.prependAny((event, ...args) => {
 })
 
 
-socket.on(sys.Packets.USER_JOIN, (data) => {
-    const userId = data.userid
-    const profile = profilesCache.getProfile(userId)
-    sys.displayUserJoin(profile)
-})
-
-socket.on(sys.Packets.USER_LEAVE, (data) => {
-    const userId = data.userid
-    const profile = profilesCache.getProfile(userId)
-    sys.displayUserLeave(profile)
-})
 
 socket.on(sys.Packets.UPDATE_PROFILE, (data) => {
     data.profiles.forEach((p) => {
@@ -115,11 +111,40 @@ socket.on(sys.Packets.MOTD, (data) => {
 })
 
 socket.on(sys.Packets.MESSAGE, (data) => {
-    const message = data.message
-    const authorId = data.userid
-    const profile = profilesCache.getProfile(authorId)
-    sys.displayMessage(message, profile)
+    const messagetype = data.messagetype || sys.MessageType.NORMAL
+    const message = data.content
+    const author = data.userid
+    const profile = profilesCache.getProfile(author)
+
+    switch (messagetype) {
+        case sys.MessageType.NORMAL:
+            sys.displayMessage(message, profile)
+            break;
+
+        case sys.MessageType.USER_JOIN:
+            sys.displayUserJoin(profile)
+            break;
+
+        case sys.MessageType.USER_LEAVE:
+            sys.displayUserLeave(profile)
+
+            break;
+
+        default:
+            sys.slog.debugwarn("Unknow messagetype received.", { data: data })
+            break;
+    }
 })
+
+/*socket.on(sys.Packets.USER_JOIN, (data) => {
+    const userId = data.userid
+    const profile = profilesCache.getProfile(userId)
+})
+
+socket.on(sys.Packets.USER_LEAVE, (data) => {
+    const userId = data.userid
+    const profile = profilesCache.getProfile(userId)
+})*/
 
 
 // - USER COMMANDS
