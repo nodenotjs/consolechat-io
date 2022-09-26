@@ -5,9 +5,16 @@ export type ChannelIdentifier = number;
 export type MessageIdentifier = number;
 export type UserIdentifier = number;
 
-export enum ChannelType {
-    PUBLIC,
-    PRIVATE
+export enum MessageType {
+    NORMAL = 0,
+    USER_JOIN = 1,
+    USER_LEAVE = 2
+}
+
+export interface IMessage {
+    content?: String,
+    messagetype?: MessageType
+    userid: UserIdentifier
 }
 
 export class UniquerId {
@@ -106,73 +113,4 @@ export class NetUser {
         this.user = user
         this.socket = socket
     }
-}
-
-export class Message {
-    public content: String
-    public author: User
-    private _id: MessageIdentifier
-
-    constructor(id: MessageIdentifier, content: String, author: User) {
-        this._id = id;
-        this.content = content
-        this.author = author;
-    }
-
-    public get id(): MessageIdentifier { return this._id }
-}
-
-export class Channel {
-    public channelType: ChannelType
-    public creator: UserIdentifier
-    private _messages: Array<Message>
-    private _id: ChannelIdentifier
-
-    constructor(id: ChannelIdentifier, channelType: ChannelType, creator: UserIdentifier) {
-        this._id = id;
-        this.channelType = channelType;
-        this.creator = creator;
-
-        this._messages = []
-    }
-
-    public get id(): ChannelIdentifier { return this._id }
-}
-
-export class ChannelManager {
-    private _idGenerator: UniquerId
-    private _channels: Map<ChannelIdentifier, Channel>
-
-    constructor() {
-        this._idGenerator = new UniquerId();
-        this._channels = new Map<ChannelIdentifier, Channel>
-    }
-
-    public createChannel(channelType: ChannelType, creator: UserIdentifier): Channel {
-        const channelId = this._idGenerator.getNext()
-        const newChannel = new Channel(channelId, channelType, creator)
-        this._insertChannel(newChannel);
-        return newChannel;
-    }
-
-    public deleteChannel(channelId: ChannelIdentifier): boolean {
-        return this._removeChannel(channelId);
-    }
-
-    public getChannelCount(): number {
-        return this._channels.size;
-    }
-
-    public getChannelById(id: ChannelIdentifier): Channel | undefined {
-        return this._channels.get(id);
-    }
-
-    private _insertChannel(channel: Channel): Map<ChannelIdentifier, Channel> {
-        return this._channels.set(channel.id, channel);
-    }
-
-    private _removeChannel(channelId: ChannelIdentifier): boolean {
-        return this._channels.delete(channelId);
-    }
-
 }

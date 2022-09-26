@@ -1,4 +1,4 @@
-import { UserIdentifier, UserProfile } from "./classes"
+import { UserIdentifier, UserProfile, MessageType, IMessage } from "./classes"
 
 export enum Packets {
     // Reserved. Do not change
@@ -16,12 +16,6 @@ export enum Packets {
     RECEIVED_MSG = 'sendmsg'
 }
 
-export enum MessageType {
-    NORMAL = 0,
-    USER_JOIN = 1,
-    USER_LEAVE = 2
-}
-
 export interface IPacket {/*foo*/ }
 
 // SERVER
@@ -30,11 +24,9 @@ export interface IPMotd extends IPacket {
     styles: Array<String>
 }
 
-export interface IPMessage extends IPacket
+export interface IPMessage extends IMessage, IPacket
 {
-    content?: String,
-    messagetype?: MessageType,
-    userid: UserIdentifier
+    
 }
 
 export interface IPUserProfile extends IPacket
