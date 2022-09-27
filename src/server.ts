@@ -48,7 +48,7 @@ io.on(Packets.CONNECTION, (socket) => {
 
 
 
-    socket.on(Packets.DISCONNECT, (_: any) => {
+    socket.on(Packets.DISCONNECT, (reason: any) => {
         userManager.removeUser(user.id)
 
         const sendUserLeave: IPMessage = { messagetype: MessageType.USER_LEAVE, userid: user.id, timestamp: Date.now() }
@@ -58,9 +58,14 @@ io.on(Packets.CONNECTION, (socket) => {
     })
 
     socket.on(Packets.RECEIVED_MSG, (data: IPReceivedMessage) => {
-        const message = messageFilter(data.message)
-        const sendData: IPMessage = { content: message, userid: user.id, timestamp: Date.now() }
-        io.emit(Packets.MESSAGE, sendData)
+        //! temporary way to handle errors. needs refactoration
+        try {
+            const filteredmessage = messageFilter(data.message)
+            const sendData: IPMessage = { content: filteredmessage, userid: user.id, timestamp: Date.now() }
+            io.emit(Packets.MESSAGE, sendData)
+        } catch {
+            handleNetUserError(netUser)
+        }
     })
 })
 
@@ -72,4 +77,17 @@ function messageFilter(string: String): String {
         filtered = filtered.split(char).join('') // needs to be replaced with a faster solution
     })
     return filtered
+}
+
+//! temporary
+function handleNetUserError(netuser: NetUser) {
+    const userid = netuser.user.id
+
+    console.trace(`Socket ${netuser.socket.id} caused an error. Forcing disconnection...`)
+    netuser.socket.disconnect(true)
+
+    const sendRemoveProfile: IPRemoveProfile = { userids: [userid] }
+    io.emit(Packets.REMOVE_PROFILE, sendRemoveProfile)
+
+    userManager.removeUser(userid)
 }
