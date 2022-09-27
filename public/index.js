@@ -1,3 +1,5 @@
+// TODO: Code refactoration: (styles to constants and others)
+
 const serverAdress = "http://localhost:3000/"
 const socket = io(serverAdress)
 
