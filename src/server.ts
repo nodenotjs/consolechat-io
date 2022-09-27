@@ -63,8 +63,8 @@ io.on(Packets.CONNECTION, (socket) => {
             const filteredmessage = messageFilter(data.message)
             const sendData: IPMessage = { content: filteredmessage, userid: user.id, timestamp: Date.now() }
             io.emit(Packets.MESSAGE, sendData)
-        } catch {
-            handleNetUserError(netUser)
+        } catch (err) {
+            handleNetUserError(err, netUser)
         }
     })
 })
@@ -80,10 +80,10 @@ function messageFilter(string: String): String {
 }
 
 //! temporary
-function handleNetUserError(netuser: NetUser) {
+function handleNetUserError(err: unknown, netuser: NetUser) {
     const userid = netuser.user.id
 
-    console.trace(`Socket ${netuser.socket.id} caused an error. Forcing disconnection...`)
+    console.log(`Socket ${netuser.socket.id} caused an error: ${err}. Forcing disconnection...`)
     netuser.socket.disconnect(true)
 
     const sendRemoveProfile: IPRemoveProfile = { userids: [userid] }
