@@ -146,17 +146,6 @@ socket.on(sys.Packets.MESSAGE, (data) => {
     }
 })
 
-/*socket.on(sys.Packets.USER_JOIN, (data) => {
-    const userId = data.userid
-    const profile = profilesCache.getProfile(userId)
-})
-
-socket.on(sys.Packets.USER_LEAVE, (data) => {
-    const userId = data.userid
-    const profile = profilesCache.getProfile(userId)
-})*/
-
-
 // - USER COMMANDS
 Object.defineProperty(__proto__, "help", {
     get: () => {
