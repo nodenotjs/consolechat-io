@@ -47,7 +47,7 @@ const sys = {
         const messageDateString = sys.getTimeString(message.timestamp)
         console.log(
             `%c${profile.nickname}%c: %c${message.content}%c - ${messageDateString}`,
-            'font-weight: bold', 'color: gray', '', 'color: gray')
+            'font-weight: bold', 'color: lightgray', '', 'color: gray')
     },
 
     displayMotd: (content, ...styles) => {

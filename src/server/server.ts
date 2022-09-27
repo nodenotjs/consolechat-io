@@ -15,7 +15,7 @@ var DEBUG: boolean = true
 const PORT: any = process.env.PORT || 3000
 
 const app = express()
-app.use(express.static(__dirname + '/../public'))
+app.use(express.static(__dirname + '/../../public'))
 const httpServer = new http.Server(app)
 const io = new socketio.Server(httpServer, {
     serveClient: false,
@@ -33,18 +33,22 @@ io.on(Packets.CONNECTION, (socket) => {
     const netUser: NetUser = new NetUser(user, socket)
 
     // MOTD
-    const sendMotd: IPMotd = settings.MOTD
-    socket.emit(Packets.MOTD, sendMotd)
+    {
+        const sendMotd: IPMotd = settings.MOTD
+        socket.emit(Packets.MOTD, sendMotd)
+    }
 
-    //
-    const sendAllProfiles: IPUpdateProfile = { profiles: userManager.getAllUserProfiles() }
-    const sendNewProfile: IPUpdateProfile = { profiles: [user.profile] }
-    const sendYourProfile: IPYourProfile = { userid: user.profile.userid }
-    const sendUserJoin: IPMessage = { messagetype: MessageType.USER_JOIN, userid: user.id, timestamp: Date.now() }
-    socket.emit(Packets.UPDATE_PROFILE, sendAllProfiles)
-    socket.emit(Packets.YOUR_PROFILE, sendYourProfile)
-    socket.broadcast.emit(Packets.UPDATE_PROFILE, sendNewProfile)
-    io.emit(Packets.MESSAGE, sendUserJoin)
+    // Send inital data and broadast changes to connected clients
+    {
+        const sendAllProfiles: IPUpdateProfile = { profiles: userManager.getAllUserProfiles() }
+        const sendNewProfile: IPUpdateProfile = { profiles: [user.profile] }
+        const sendYourProfile: IPYourProfile = { userid: user.profile.userid }
+        const sendUserJoin: IPMessage = { messagetype: MessageType.USER_JOIN, userid: user.id, timestamp: Date.now() }
+        socket.emit(Packets.UPDATE_PROFILE, sendAllProfiles)
+        socket.emit(Packets.YOUR_PROFILE, sendYourProfile)
+        socket.broadcast.emit(Packets.UPDATE_PROFILE, sendNewProfile)
+        io.emit(Packets.MESSAGE, sendUserJoin)
+    }
 
 
 
