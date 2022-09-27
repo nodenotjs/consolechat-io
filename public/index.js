@@ -1,5 +1,5 @@
 const serverAdress = "http://localhost:3000/"
-const socket = io(serverAdress);
+const socket = io(serverAdress)
 
 const __urlParms = new URLSearchParams(window.location.search)
 var DEBUG = __urlParms.get('debug')
@@ -35,27 +35,35 @@ const sys = {
         USER_LEAVE: 2
     },
 
+    getTimeString(timestamp) {
+        const messageDate = new Date(timestamp)
+        return `${messageDate.getHours()}:${messageDate.getMinutes()}`
+    },
+
     displayMessage: (message, profile) => {
+        const messageDateString = sys.getTimeString(message.timestamp)
         console.log(
-            `%c${profile.nickname}%c: %c${message}`,
-            'font-weight: bold', 'color: gray', '')
+            `%c${profile.nickname}%c: %c${message.content}%c - ${messageDateString}`,
+            'font-weight: bold', 'color: gray', '', 'color: gray')
     },
 
     displayMotd: (content, ...styles) => {
         console.log(content, ...styles)
     },
 
-    displayUserJoin: (profile) => {
+    displayUserJoin: (message, profile) => {
+        const messageDateString = sys.getTimeString(message.timestamp)
         console.log(
-            `%c🠊 %c${profile.nickname}%c joined the conversation!`,
-            'color: lime', 'font-weigth: bold', 'color: gray'
+            `%c🠊 %c${profile.nickname}%c joined the conversation!%c - ${messageDateString}`,
+            'color: lime', 'font-weigth: bold', 'color: gray', 'color: gray'
         )
     },
 
-    displayUserLeave: (profile) => {
+    displayUserLeave: (message, profile) => {
+        const messageDateString = sys.getTimeString(message.timestamp)
         console.log(
-            `%c🠈 %c${profile.nickname}%c left the conversation`,
-            'color: red', 'font-weigth: bold', 'color: gray'
+            `%c🠈 %c${profile.nickname}%c left the conversation%c - ${messageDateString}`,
+            'color: red', 'font-weigth: bold', 'color: gray', 'color: gray'
         )
     }
 }
@@ -112,27 +120,26 @@ socket.on(sys.Packets.MOTD, (data) => {
 
 socket.on(sys.Packets.MESSAGE, (data) => {
     const messagetype = data.messagetype || sys.MessageType.NORMAL
-    const message = data.content
+    const message = data
     const author = data.userid
     const profile = profilesCache.getProfile(author)
 
     switch (messagetype) {
         case sys.MessageType.NORMAL:
             sys.displayMessage(message, profile)
-            break;
+            break
 
         case sys.MessageType.USER_JOIN:
-            sys.displayUserJoin(profile)
-            break;
+            sys.displayUserJoin(message, profile)
+            break
 
         case sys.MessageType.USER_LEAVE:
-            sys.displayUserLeave(profile)
-
-            break;
+            sys.displayUserLeave(message, profile)
+            break
 
         default:
             sys.slog.debugwarn("Unknow messagetype received.", { data: data })
-            break;
+            break
     }
 })
 
@@ -154,7 +161,7 @@ Object.defineProperty(__proto__, "help", {
             "say(\"<message>\"): sends a message"
         )
     }
-});
+})
 
 function say(message) {
     let finalMessage = message

@@ -1,6 +1,6 @@
 class UserProfile {
     constructor(associatedUserId, nickname) {
-        this._associatedUserId = associatedUserId;
+        this._associatedUserId = associatedUserId
         this.nickname = nickname
     }
 

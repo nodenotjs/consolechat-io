@@ -3,14 +3,14 @@
     "MESSAGE_MAX_LEN": 256,
     "MOTD": {
         "message": [
-            "%cWelcome to ConsoleChat.io!",
-            "%c\n Looks like you found where the site works ;)",
-            "%c\n\n If you need help, type %chelp%c for the command list"
+            "%cWelcome to %c ConsoleChat.io! %c",
+            "\n %cStart chatting by typing %csay %c`Hello!`%c",
+            "\n\n %cIf you need help, type %chelp%c for the command list"
         ],
         "styles": [
-            "font-weight: bold; color: gold; font-size: 24px",
-            "color: lime",
-            "", "color: aqua; text-decoration: underline", ""
+            "font-weight: bold; color: gold; font-size: 24px", "font-weight: bold; color: black; font-size: 24px; background-color: gold; border-radius: 1px 12px", "",
+            "color: lime;", "background-color: #404040; border-radius: 5px 0px 0px 5px", "background-color: #404040; color: #F28B49; border-radius: 0px 5px 5px 0px", "",
+            "", "background-color: #404040; border-radius: 5px", ""
         ]
     }
 }

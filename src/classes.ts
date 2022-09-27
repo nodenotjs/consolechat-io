@@ -1,9 +1,9 @@
-import { Server, Socket } from "socket.io";
-import { Packets } from "./packets";
+import { Server, Socket } from "socket.io"
+import { Packets } from "./packets"
 
-export type ChannelIdentifier = number;
-export type MessageIdentifier = number;
-export type UserIdentifier = number;
+export type ChannelIdentifier = number
+export type MessageIdentifier = number
+export type UserIdentifier = number
 
 export enum MessageType {
     NORMAL = 0,
@@ -12,30 +12,31 @@ export enum MessageType {
 }
 
 export interface IMessage {
-    content?: String,
+    content?: String
     messagetype?: MessageType
     userid: UserIdentifier
+    timestamp: number
 }
 
 export class UniquerId {
-    private _generated: number;
+    private _generated: number
 
     constructor(seed?: number) {
-        this._generated = seed || 0;
+        this._generated = seed || 0
     }
 
     public getNext() {
-        this._generated += 1;
-        return this._generated;
+        this._generated += 1
+        return this._generated
     }
 }
 
 export class User {
     public profile: UserProfile
-    private _id: UserIdentifier;
+    private _id: UserIdentifier
 
     constructor(id: UserIdentifier, profile: UserProfile) {
-        this._id = id;
+        this._id = id
         this.profile = profile
     }
 
@@ -44,16 +45,16 @@ export class User {
 
 export class UserProfile {
     public nickname: String
-    private _associatedUserId: UserIdentifier;
+    private _associatedUserId: UserIdentifier
 
     constructor(associatedUserId: UserIdentifier, nickname: String) {
-        this._associatedUserId = associatedUserId;
+        this._associatedUserId = associatedUserId
         this.nickname = nickname
     }
 
     get userid(): UserIdentifier { return this._associatedUserId }
 
-    toJSON() {
+    public toJSON() {
         return { nickname: this.nickname, userid: this.userid }
     }
 }
@@ -63,7 +64,7 @@ export class UserManager {
     private _users: Map<UserIdentifier, User>
 
     constructor() {
-        this._idGenerator = new UniquerId();
+        this._idGenerator = new UniquerId()
 
         this._users = new Map<UserIdentifier, User>
     }
@@ -73,7 +74,7 @@ export class UserManager {
         const profile = new UserProfile(id, nickname)
         const user = new User(id, profile)
         this._insertUser(user)
-        return user;
+        return user
     }
 
     public removeUser(id: UserIdentifier): boolean {
@@ -89,11 +90,7 @@ export class UserManager {
     }
 
     public getAllUserProfiles() : Array<UserProfile> {
-        const userProfiles: Array<UserProfile> = []
-        this.getAllUsers().forEach((u) => {
-            userProfiles.push(u.profile);
-        })
-
+        const userProfiles: Array<UserProfile> = this.getAllUsers().map((x) => x.profile)
         return userProfiles
     }
 
