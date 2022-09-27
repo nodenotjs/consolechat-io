@@ -1,4 +1,5 @@
 // TODO: Code refactoration: (styles to constants and others)
+// TODO: Use TS instead JS and share some sources with the server
 
 const serverAdress = "http://localhost:3000/"
 const socket = io(serverAdress)
