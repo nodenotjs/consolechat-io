@@ -29,7 +29,8 @@ httpServer.listen(PORT, () => {
 const userManager: UserManager = new UserManager()
 
 io.on(Packets.CONNECTION, (socket) => {
-    const user: User = userManager.createUser(`Guest ${10000 + ~(Math.random() * 9999)}`)
+    const guestRandomNumber = 1000 + ~~(Math.random() * 8999)
+    const user: User = userManager.createUser(`Guest ${guestRandomNumber}`)
     const netUser: NetUser = new NetUser(user, socket)
 
     // MOTD

@@ -18,6 +18,10 @@ export interface IMessage {
     timestamp: number
 }
 
+export interface IMessagesLoader {
+    getMessages(quantity: number, startId: MessageIdentifier): Array<Message>
+}
+
 export class UniquerId {
     private _generated: number
 
@@ -89,7 +93,7 @@ export class UserManager {
         return [...this._users.values()]
     }
 
-    public getAllUserProfiles() : Array<UserProfile> {
+    public getAllUserProfiles(): Array<UserProfile> {
         const userProfiles: Array<UserProfile> = this.getAllUsers().map((x) => x.profile)
         return userProfiles
     }
@@ -109,5 +113,36 @@ export class NetUser {
     constructor(user: User, socket: Socket) {
         this.user = user
         this.socket = socket
+    }
+}
+
+export class Message implements IMessage {
+    public userid: number
+    public timestamp: number
+    public content?: String | undefined
+    public messagetype?: MessageType | undefined
+
+    constructor(userid: number, timestamp: number, content?: String, messagetype?: MessageType) {
+        this.userid = userid
+        this.timestamp = timestamp
+        this.content = content
+        this.messagetype = messagetype
+    }
+}
+
+// TODO: Complete the class
+//! Do not use this while incomplete!
+export class Channel implements IMessagesLoader {
+    private _messages: Array<Message>
+
+    constructor() {
+        this._messages = []
+    }
+
+    public getMessages(quantity: number, startId: number = 0): Array<Message> {
+        const messagesCount = this._messages.length
+        const messageLoadCount = Math.min(startId + quantity, messagesCount) - startId
+
+        return this._messages.slice(startId, messageLoadCount)
     }
 }

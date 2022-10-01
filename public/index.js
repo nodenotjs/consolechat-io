@@ -147,13 +147,16 @@ socket.on(sys.Packets.MESSAGE, (data) => {
 })
 
 // - USER COMMANDS
+
 Object.defineProperty(__proto__, "help", {
-    get: () => {
-        console.log(
-            "say(\"<message>\"): sends a message"
-        )
-    }
+    get: () => {cmdhelp()}
 })
+
+function cmdhelp() {
+    console.log(
+        "say(\"<message>\"): sends a message"
+    )
+}
 
 function say(message) {
     let finalMessage = message
