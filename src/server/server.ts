@@ -9,12 +9,13 @@ import {
     IPReceivedMessage, IPRemoveProfile,
     IPYourProfile, Packets, IPReceivedUpdateNickname
 } from './packets'
-import { NetUser, User, UserManager, MessageType } from './classes'
+import { NetUser, User, UserManager, MessageType, UserTags } from './classes'
 import { send } from 'process'
 
 var DEBUG: boolean = true
 const PORT: any = process.env.PORT || 3000
 
+// APP stuff
 const app = express()
 app.use(express.static(__dirname + '/../../public'))
 const httpServer = new http.Server(app)
@@ -22,16 +23,21 @@ const io = new socketio.Server(httpServer, {
     serveClient: false,
 })
 
-
 httpServer.listen(PORT, () => {
     console.log(`Server started! Listening ${PORT}`)
 })
+
+//Global Vars
+const USERS_DEFAULT_TAGS: Array<UserTags> = [UserTags.PERM_CHANGE_NICKNAME]
 
 const userManager: UserManager = new UserManager()
 
 io.on(Packets.CONNECTION, (socket) => {
     const guestRandomNumber = 1000 + ~~(Math.random() * 8999)
     const user: User = userManager.createUser(`Guest ${guestRandomNumber}`)
+    {
+        user.tags.addTags(USERS_DEFAULT_TAGS)
+    }
     const netUser: NetUser = new NetUser(user, socket)
 
     // MOTD
@@ -77,9 +83,8 @@ io.on(Packets.CONNECTION, (socket) => {
     socket.on(Packets.RECEIVED_UPDATE_NICKNAME, (data: IPReceivedUpdateNickname) => {
         //! temporary way to handle errors. needs refactoration
         try {
-            if (!validateNickname(data.nickname)) {
-                return
-            }
+            if (!user.tags.haveTag(UserTags.PERM_CHANGE_NICKNAME)) return
+            if (!validateNickname(data.nickname)) return
 
             const oldNickname = user.profile.nickname
             user.profile.nickname = data.nickname

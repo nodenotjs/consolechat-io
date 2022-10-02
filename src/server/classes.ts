@@ -1,6 +1,45 @@
 import { Server, Socket } from "socket.io"
 import { Packets } from "./packets"
 
+
+export class TagGroup<Type> {
+    private _tags: Array<Type>
+
+    constructor() {
+        this._tags = []
+    }
+
+    public addTag(tag: Type) {
+        if (this.haveTag(tag)) return
+
+        this._tags.push(tag)
+    }
+
+    public addTags(tags: Array<Type>) {
+        tags.forEach((e) => { this.addTag(e) })
+    }
+
+    public removeTag(tag: Type) {
+        if (!this.haveTag(tag)) return
+
+        const index = this._tags.indexOf(tag)
+        this._tags.splice(index, 1)
+    }
+
+    public removeTags(tags: Array<Type>) {
+        tags.forEach((e) => { this.removeTag(e) })
+    }
+
+    public haveTag(tag: Type): boolean {
+        return this._tags.includes(tag)
+    }
+
+    public getEntries(): Array<Type> {
+        return JSON.parse(JSON.stringify(this._tags)) // Deep Copy the array
+    }
+}
+
+
 export type ChannelIdentifier = number
 export type MessageIdentifier = number
 export type UserIdentifier = number
@@ -11,6 +50,10 @@ export enum MessageType {
     USER_LEAVE = 2,
     NICKNAME_UPDATED = 3,
     SYSTEM = 4
+}
+
+export enum UserTags {
+    PERM_CHANGE_NICKNAME = "perm_changenick"
 }
 
 export interface IMessage {
@@ -35,11 +78,13 @@ export class UniquerId {
 
 export class User {
     public profile: UserProfile
+    public tags: TagGroup<UserTags>
     private _id: UserIdentifier
 
     constructor(id: UserIdentifier, profile: UserProfile) {
         this._id = id
         this.profile = profile
+        this.tags = new TagGroup<UserTags>()
     }
 
     get id() { return this._id }
