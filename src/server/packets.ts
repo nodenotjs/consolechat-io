@@ -13,7 +13,8 @@ export enum Packets {
     YOUR_PROFILE = 'yourprofile',
 
     // Client
-    RECEIVED_MSG = 'sendmsg'
+    RECEIVED_MSG = 'sendmsg',
+    RECEIVED_UPDATE_NICKNAME = 'updatenick'
 }
 
 export interface IPacket {/*foo*/ }
@@ -53,4 +54,9 @@ export interface IPYourProfile extends IPacket
 export interface IPReceivedMessage extends IPacket
 {
     message: String
+}
+
+export interface IPReceivedUpdateNickname extends IPacket
+{
+    nickname: String
 }

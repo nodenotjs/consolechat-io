@@ -8,7 +8,9 @@ export type UserIdentifier = number
 export enum MessageType {
     NORMAL = 0,
     USER_JOIN = 1,
-    USER_LEAVE = 2
+    USER_LEAVE = 2,
+    NICKNAME_UPDATED = 3,
+    SYSTEM = 4
 }
 
 export interface IMessage {
@@ -16,10 +18,6 @@ export interface IMessage {
     messagetype?: MessageType
     userid: UserIdentifier
     timestamp: number
-}
-
-export interface IMessagesLoader {
-    getMessages(quantity: number, startId: MessageIdentifier): Array<Message>
 }
 
 export class UniquerId {
@@ -132,17 +130,10 @@ export class Message implements IMessage {
 
 // TODO: Complete the class
 //! Do not use this while incomplete!
-export class Channel implements IMessagesLoader {
-    private _messages: Array<Message>
+export class Channel {
+    public users: Array<User>
 
     constructor() {
-        this._messages = []
-    }
-
-    public getMessages(quantity: number, startId: number = 0): Array<Message> {
-        const messagesCount = this._messages.length
-        const messageLoadCount = Math.min(startId + quantity, messagesCount) - startId
-
-        return this._messages.slice(startId, messageLoadCount)
+        this.users = []
     }
 }

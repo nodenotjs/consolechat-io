@@ -12,5 +12,9 @@
             "color: lime;", "background-color: #404040; border-radius: 5px 0px 0px 5px", "background-color: #404040; color: #F28B49; border-radius: 0px 5px 5px 0px", "",
             "", "background-color: #404040; border-radius: 5px", ""
         ]
+    },
+    "NICKNAME_RULES": {
+        "MIN_SIZE": 2,
+        "MAX_SIZE": 32
     }
 }

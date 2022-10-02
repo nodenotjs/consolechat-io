@@ -7,9 +7,10 @@ import settings from './server_config.json'
 import {
     IPUpdateProfile, IPMessage, IPMotd,
     IPReceivedMessage, IPRemoveProfile,
-    IPYourProfile, Packets
+    IPYourProfile, Packets, IPReceivedUpdateNickname
 } from './packets'
 import { NetUser, User, UserManager, MessageType } from './classes'
+import { send } from 'process'
 
 var DEBUG: boolean = true
 const PORT: any = process.env.PORT || 3000
@@ -72,7 +73,37 @@ io.on(Packets.CONNECTION, (socket) => {
             handleNetUserError(err, netUser)
         }
     })
+
+    socket.on(Packets.RECEIVED_UPDATE_NICKNAME, (data: IPReceivedUpdateNickname) => {
+        //! temporary way to handle errors. needs refactoration
+        try {
+            if (!validateNickname(data.nickname)) {
+                return
+            }
+
+            const oldNickname = user.profile.nickname
+            user.profile.nickname = data.nickname
+            const sendUpdatedProfile: IPUpdateProfile = { profiles: [user.profile] }
+            const sendUpdatedProfileMessage: IPMessage =
+            {
+                messagetype: MessageType.NICKNAME_UPDATED,
+                content: oldNickname,
+                userid: user.profile.userid,
+                timestamp: Date.now()
+            }
+            io.emit(Packets.UPDATE_PROFILE, sendUpdatedProfile)
+            io.emit(Packets.MESSAGE, sendUpdatedProfileMessage)
+        } catch (err) {
+            handleNetUserError(err, netUser)
+        }
+    })
 })
+
+function validateNickname(nickname: String): boolean {
+    const correctSize = nickname.length >= settings.NICKNAME_RULES.MIN_SIZE && nickname.length <= settings.NICKNAME_RULES.MAX_SIZE
+
+    return correctSize
+}
 
 function messageFilter(string: String): String {
     var filtered = string.substring(0, settings.MESSAGE_MAX_LEN)
