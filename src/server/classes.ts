@@ -131,9 +131,9 @@ export class Message implements IMessage {
 // TODO: Complete the class
 //! Do not use this while incomplete!
 export class Channel {
-    public users: Array<User>
+    public userids: Array<UserIdentifier>
 
     constructor() {
-        this.users = []
+        this.userids = []
     }
 }
