@@ -1,6 +1,8 @@
 {
     "MESSAGE_CHARACTER_FILTER": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],
+
     "MESSAGE_MAX_LEN": 256,
+
     "MOTD": {
         "message": [
             "%cWelcome to %c ConsoleChat.io! %c",
@@ -13,6 +15,7 @@
             "", "background-color: #404040; border-radius: 5px", ""
         ]
     },
+
     "NICKNAME_RULES": {
         "MIN_SIZE": 2,
         "MAX_SIZE": 32

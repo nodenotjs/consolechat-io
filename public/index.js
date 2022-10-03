@@ -1,14 +1,14 @@
 // TODO: Code refactoration: (styles to constants and others)
 // TODO: Use TS instead JS and share some sources with the server
 
-const serverAdress = "http://localhost:3000"
+const serverAdress = "http://localhost:3000/"
 const socket = io(serverAdress)
 
 const __urlParms = new URLSearchParams(window.location.search)
 var DEBUG = __urlParms.get('debug')
 var NETDEBUG = __urlParms.get('netdebug')
 
-const profilesCache = new ProfilesCache()
+const _profilesCache = new ProfilesCache()
 
 const sys = {
     slog: {
@@ -43,7 +43,7 @@ const sys = {
 
     getTimeString(timestamp) {
         const messageDate = new Date(timestamp)
-        return `${messageDate.getHours()}:${messageDate.getMinutes()}`
+        return `${messageDate.getHours()}:${messageDate.getMinutes().toString().padStart(2, '0')}`
     },
 
     displayMotd: (content, ...styles) => {
@@ -104,26 +104,26 @@ socket.prependAny((event, ...args) => {
 
 socket.on(sys.Packets.UPDATE_PROFILE, (data) => {
     data.profiles.forEach((p) => {
-        const newProfile = !profilesCache.getHasProfile(p.userid)
+        const newProfile = !_profilesCache.getHasProfile(p.userid)
         if (newProfile)
             DEBUG && sys.slog.debug(`Added profile ${p.userid} to cache`)
         else
             DEBUG && sys.slog.debug(`Updated profile ${p.userid} in cache`)
 
-        profilesCache.setProfile(p)
+        _profilesCache.setProfile(p)
     })
 })
 
 socket.on(sys.Packets.REMOVE_PROFILE, (data) => {
     data.userids.forEach((i) => {
         DEBUG && sys.slog.debug(`Removed profile ${i} from cache`)
-        profilesCache.removeProfile(i)
+        _profilesCache.removeProfile(i)
     })
 })
 
 socket.on(sys.Packets.YOUR_PROFILE, (data) => {
     const id = data.userid
-    profilesCache.setMyProfileId(id)
+    _profilesCache.setMyProfileId(id)
     DEBUG && sys.slog.debug(`Your profile id defined to ${id}`)
 })
 
@@ -136,7 +136,7 @@ socket.on(sys.Packets.MESSAGE, (data) => {
     const messagetype = data.messagetype || sys.MessageType.NORMAL
     const message = data
     const author = data.userid
-    const profile = profilesCache.getProfile(author)
+    const profile = _profilesCache.getProfile(author)
 
     switch (messagetype) {
         case sys.MessageType.NORMAL:

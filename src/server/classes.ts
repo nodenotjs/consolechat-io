@@ -5,8 +5,9 @@ import { Packets } from "./packets"
 export class TagGroup<Type> {
     private _tags: Array<Type>
 
-    constructor() {
+    constructor(tags?: Array<Type>) {
         this._tags = []
+        if (tags) this.addTags(tags)
     }
 
     public addTag(tag: Type) {
@@ -37,6 +38,10 @@ export class TagGroup<Type> {
     public getEntries(): Array<Type> {
         return JSON.parse(JSON.stringify(this._tags)) // Deep Copy the array
     }
+
+    toJSON() {
+        return { tags: this.getEntries() }
+    }
 }
 
 
@@ -53,7 +58,11 @@ export enum MessageType {
 }
 
 export enum UserTags {
-    PERM_CHANGE_NICKNAME = "perm_changenick"
+    // PERMISSIONS
+    PERM_CHANGE_NICKNAME = "perm_changenick",
+
+    // FLAGS
+    FLAG_IS_GUEST = "flag_isguest"
 }
 
 export interface IMessage {
@@ -78,13 +87,11 @@ export class UniquerId {
 
 export class User {
     public profile: UserProfile
-    public tags: TagGroup<UserTags>
     private _id: UserIdentifier
 
     constructor(id: UserIdentifier, profile: UserProfile) {
         this._id = id
         this.profile = profile
-        this.tags = new TagGroup<UserTags>()
     }
 
     get id() { return this._id }
@@ -92,17 +99,19 @@ export class User {
 
 export class UserProfile {
     public nickname: String
+    public tags: TagGroup<UserTags>
     private _associatedUserId: UserIdentifier
 
     constructor(associatedUserId: UserIdentifier, nickname: String) {
         this._associatedUserId = associatedUserId
         this.nickname = nickname
+        this.tags = new TagGroup<UserTags>
     }
 
     get userid(): UserIdentifier { return this._associatedUserId }
 
     public toJSON() {
-        return { nickname: this.nickname, userid: this.userid }
+        return { nickname: this.nickname, userid: this.userid, tags: this.tags.getEntries()  }
     }
 }
 

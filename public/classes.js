@@ -34,6 +34,6 @@ class ProfilesCache {
     }
 
     getMyProfile() {
-        return this.getProfile(this.myprofile)
+        return this.getProfile(this._myprofileid)
     }
 }
