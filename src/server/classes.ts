@@ -72,6 +72,17 @@ export interface IMessage {
     timestamp: number
 }
 
+export interface IUserProfile {
+    nickname: String
+    tags: TagGroup<UserTags>
+    userid: UserIdentifier
+}
+
+export interface IUser {
+    id: UserIdentifier,
+    profile: IUserProfile
+}
+
 export class UniquerId {
     private _generated: number
 
@@ -85,7 +96,7 @@ export class UniquerId {
     }
 }
 
-export class User {
+export class User implements IUser {
     public profile: UserProfile
     private _id: UserIdentifier
 
@@ -97,7 +108,7 @@ export class User {
     get id() { return this._id }
 }
 
-export class UserProfile {
+export class UserProfile implements IUserProfile {
     public nickname: String
     public tags: TagGroup<UserTags>
     private _associatedUserId: UserIdentifier
